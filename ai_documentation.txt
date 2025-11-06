@@ -9,3 +9,49 @@ def write_wavfile(filename, fs, data):
 That’s the only reusable function — it defines a procedure you can call elsewhere.
 
 Everything else in your snippet (the variables like deltat_sound, indxd, and the calls to write_wavfile(...)) are script code — code that executes immediately when you run the file.
+
+Question: can you write a simple test for this
+def whiten(strain, interp_psd, dt): Nt = len(strain) freqs = np.fft.rfftfreq(Nt, dt) freqs1 = np.linspace(0, 2048, Nt // 2 + 1) # whitening: transform to freq domain, divide by asd, then transform back, # taking care to get normalization right. hf = np.fft.rfft(strain) norm = 1./np.sqrt(1./(dt*2)) white_hf = hf / np.sqrt(interp_psd(freqs)) * norm white_ht = np.fft.irfft(white_hf, n=Nt) return white_ht
+
+Answer: def test_whiten_basic():
+    # Create fake strain data (a sine wave)
+    fs = 4096            # sampling frequency
+    dt = 1.0 / fs
+    t = np.linspace(0, 1, fs)
+    strain = np.sin(2 * np.pi * 50 * t)  # 50 Hz sine wave
+
+    # Create a fake PSD interpolator (flat PSD = 1)
+    interp_psd = lambda f: np.ones_like(f)
+
+    # Run the whiten function
+    white_ht = whiten(strain, interp_psd, dt)
+
+    # --- Assertions ---
+    assert isinstance(white_ht, np.ndarray)
+    assert white_ht.shape == strain.shape
+    assert not np.isnan(white_ht).any(), "Output contains NaN values"
+    assert np.isclose(np.mean(white_ht), 0, atol=1e-2), "Output not zero-centered"
+
+Question: Can you write a simple test for this:
+  def write_wavfile(filename,fs,data):
+    d = np.int16(data/np.max(np.abs(data)) * 32767 * 0.9)
+    wavfile.write(filename,int(fs), d)
+
+Answer: 
+def test_write_wavfile(tmp_path):
+    # create fake data
+    data = np.random.randn(1000)
+    fs = 4096
+    filename = tmp_path / "test.wav"
+
+    # run the function
+    write_wavfile(filename, fs, data)
+
+    # check that the file was created
+    assert filename.exists()
+
+    # read it back and confirm shape and type
+    rate, read_data = wavfile.read(filename)
+    assert rate == fs
+    assert read_data.dtype == np.int16
+    assert len(read_data) == len(data)
