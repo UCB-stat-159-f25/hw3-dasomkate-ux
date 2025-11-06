@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools >= 70"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ligotools"
+authors = [
+  {name="Ligo Scientific Collaboration (LSC)"},
+  {name="Kate Chung"}
+]
+description = "A Python library for ligo"
+readme = "README.md"
+
+requires-python = ">=3.9"
+dependencies = [
+    "numpy>=2.0, <2.3",
+    "scipy>=1.13",
+    "h5py>=3.12",
+    "matplotlib>=3.9",
+    "ipykernel>=6.29"
+]
+
+license = "BSD-3-Clause"
+license-files = ["LICEN[CS]E*"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent"
+]
+
+keywords = ["tools", "ligo"]
+dynamic = ["version"]
+
+[tool.setuptools]
+packages = ["ligotools"]
+
+[tool.setuptools.dynamic]
+version = {attr = "ligotools.__version__"}
