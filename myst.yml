@@ -3,7 +3,7 @@ version: 1
 project:
   id: cd76663b-7cb1-465b-8d7f-11c0a141b309
   title: HW 3  
-  # description:
+  description: This is a website for HW 3
   # keywords: []
   authors: 
     - name: Kate Chung
